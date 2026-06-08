@@ -143,6 +143,7 @@ helm repo update
 -- 2. Install Datadog Agent (Replace <YOUR_DATADOG_API_KEY> with your key):
 helm upgrade --install datadog-agent datadog/datadog `
   --set datadog.apiKey=<YOUR_DATADOG_API_KEY> `
+  --set datadog.site=<YOUR_DATADOG_SITE_E_G_us5.datadoghq.com> `
   --set datadog.logs.enabled=true `
   --set datadog.logs.containerCollectAll=true `
   --set datadog.apm.enabled=true `
