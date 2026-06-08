@@ -137,7 +137,7 @@ TASK 3: GitOps CD - ArgoCD (files already exist in Retail-chart/)
   # Get initial password and login
   argocd admin initial-password -n argocd
   argocd login <ARGOCD-LB-URL>:80
-  argocd account update-password   → password: Mur@li2024
+  argocd account update-password   → password: admin
 
   # Register EKS cluster
   kubectl config get-contexts -o name

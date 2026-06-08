@@ -7,6 +7,37 @@ Region: ap-south-2  |  Namespace: retail  |  Helm chart: Retail-chart/
 ==============================================================
 PHASE 1 — Prerequisites Check
 ==============================================================
+-- Install Prerequisites on Windows (run in Admin PowerShell) --
+# Install via winget:
+winget install Amazon.AWSCLI
+winget install Kubernetes.kubectl
+winget install Weaveworks.eksctl
+winget install Helm.Helm
+
+# OR install via Chocolatey:
+# choco install awscli kubernetes-cli eksctl kubernetes-helm
+
+-- Install Prerequisites on Ubuntu / Debian --
+# 1. AWS CLI:
+# sudo apt update && sudo apt install unzip curl -y
+# curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+# unzip awscliv2.zip && sudo ./aws/install && rm -rf awscliv2.zip ./aws
+
+# 2. kubectl:
+# curl -LO "https://dl.k8s.io/release/\$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+# chmod +x kubectl && sudo mv kubectl /usr/local/bin/kubectl
+
+# 3. eksctl:
+# curl -sLO "https://github.com/eksctl-io/eksctl/releases/latest/download/eksctl_\$(uname -s)_amd64.tar.gz"
+# tar -xzf eksctl_\$(uname -s)_amd64.tar.gz -C /tmp && rm eksctl_\$(uname -s)_amd64.tar.gz
+# sudo mv /tmp/eksctl /usr/local/bin
+
+# 4. Helm:
+# curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+# chmod +x get_helm.sh && ./get_helm.sh && rm get_helm.sh
+
+-- Restart Terminal after installation to refresh environment variables --
+
 aws --version
 kubectl version --client
 eksctl version
@@ -50,7 +81,7 @@ kubectl get pods -n argocd
 ==============================================================
 PHASE 6 — Expose ArgoCD UI
 ==============================================================
-kubectl patch svc argocd-server -n argocd -p "{""spec"": {""type"": ""LoadBalancer""}}"
+kubectl patch svc argocd-server -n argocd -p '{\"spec\": {\"type\": \"LoadBalancer\"}}'
 kubectl get svc -n argocd
 
 -- Copy the EXTERNAL-IP from argocd-server row --
@@ -58,13 +89,18 @@ kubectl get svc -n argocd
 ==============================================================
 PHASE 7 — Login to ArgoCD
 ==============================================================
-argocd admin initial-password -n argocd
+-- 1. Download ArgoCD CLI if not already installed (run in project folder):
+# For Windows (PowerShell):
+# curl.exe -L -o argocd.exe https://github.com/argoproj/argo-cd/releases/latest/download/argocd-windows-amd64.exe
 
-argocd login <PASTE-EXTERNAL-IP-HERE>:80
--- Username: admin --
--- Password: (from above command) --
+-- 2. Get initial admin password:
+.\argocd.exe admin initial-password -n argocd
 
-argocd account update-password
+-- 3. Log in (Username: admin | Password: from command above):
+.\argocd.exe login <PASTE-EXTERNAL-IP-HERE>:80
+
+-- 4. Update your password:
+.\argocd.exe account update-password
 
 ==============================================================
 PHASE 8 — Install Argo Rollouts
@@ -89,7 +125,7 @@ PHASE 11 — Verify Everything
 kubectl get pods -n retail
 kubectl get svc -n retail
 kubectl get rollout -n retail
-argocd app get userprofile-blue-green
+.\argocd.exe app get userprofile-blue-green --insecure
 
 -- Expected: --
 --   pods      → STATUS = Running --
