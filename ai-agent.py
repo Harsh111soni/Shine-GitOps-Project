@@ -98,5 +98,14 @@ if __name__ == "__main__":
         pod = "userprofile-rollout-7c79cc995f-pzlsq"
 
     troubleshoot_pod_restart(pod)
+    
+    import time
+    print("\n[Pausing for 2 seconds to avoid API rate limits...]")
+    time.sleep(2)
+    
     troubleshoot_high_latency(pod)
+    
+    print("\n[Pausing for 2 seconds to avoid API rate limits...]")
+    time.sleep(2)
+    
     troubleshoot_deployment_failure()
