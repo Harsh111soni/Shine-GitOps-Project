@@ -1,7 +1,8 @@
-# Task 5: AI-powered Kubernetes troubleshooting agent using Claude AI
+# Task 5: AI-powered Kubernetes troubleshooting agent using Gemini AI
 
+import os
 import subprocess
-import anthropic
+import google.generativeai as genai
 
 # Collect kubectl logs for a pod
 def get_logs(pod_name, namespace="retail"):
@@ -35,31 +36,31 @@ def get_k8s_events(namespace="retail"):
     )
     return result.stdout
 
-# Send logs and events to Claude for analysis
-def analyze_with_claude(logs, events, scenario):
-    # Initializes using the ANTHROPIC_API_KEY environment variable securely
-    client = anthropic.Anthropic()
-    message = client.messages.create(
-        model="claude-3-5-sonnet-20241022",
-        max_tokens=1024,
-        messages=[{
-            "role": "user",
-            "content": (
-                f"Kubernetes issue: {scenario}\n\n"
-                f"Pod Logs:\n{logs}\n\n"
-                f"Pod Events:\n{events}\n\n"
-                "Find the root cause and provide step-by-step remediation."
-            )
-        }]
+# Send logs and events to Gemini for analysis
+def analyze_with_gemini(logs, events, scenario):
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        raise ValueError("GEMINI_API_KEY environment variable is not set. Please get a free API key from Google AI Studio (aistudio.google.com).")
+    
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel("gemini-1.5-flash")
+    
+    prompt = (
+        f"Kubernetes issue: {scenario}\n\n"
+        f"Pod Logs:\n{logs}\n\n"
+        f"Pod Events:\n{events}\n\n"
+        "Find the root cause and provide step-by-step remediation."
     )
-    return message.content[0].text
+    
+    response = model.generate_content(prompt)
+    return response.text
 
 # Scenario 1: Pod continuously restarting (CrashLoopBackOff)
 def troubleshoot_pod_restart(pod_name):
     print(f"\n--- Scenario 1: Pod {pod_name} is restarting ---")
     logs = get_logs(pod_name)
     events = get_events(pod_name)
-    analysis = analyze_with_claude(logs, events, "pod is continuously restarting / CrashLoopBackOff")
+    analysis = analyze_with_gemini(logs, events, "pod is continuously restarting / CrashLoopBackOff")
     print(analysis)
 
 # Scenario 2: High latency after deployment
@@ -67,7 +68,7 @@ def troubleshoot_high_latency(pod_name):
     print(f"\n--- Scenario 2: High latency detected for {pod_name} ---")
     logs = get_logs(pod_name)
     events = get_events(pod_name)
-    analysis = analyze_with_claude(logs, events, "application latency increased after deployment")
+    analysis = analyze_with_gemini(logs, events, "application latency increased after deployment")
     print(analysis)
 
 # Scenario 3: Deployment failed
@@ -75,7 +76,7 @@ def troubleshoot_deployment_failure(namespace="retail"):
     print(f"\n--- Scenario 3: Deployment failed in {namespace} ---")
     events = get_k8s_events(namespace)
     pods = get_pods(namespace)
-    analysis = analyze_with_claude(pods, events, "deployment failed in Kubernetes")
+    analysis = analyze_with_gemini(pods, events, "deployment failed in Kubernetes")
     print(analysis)
 
 # Main

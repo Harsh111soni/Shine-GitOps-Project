@@ -154,13 +154,14 @@ helm upgrade --install datadog-agent datadog/datadog `
 kubectl get pods -l app=datadog-agent
 
 ==============================================================
-PHASE 13 — AI-Driven Troubleshooting (Claude API)
+PHASE 13 — AI-Driven Troubleshooting (Gemini API - Free)
 ==============================================================
 -- 1. Install required Python packages:
-pip install anthropic
+pip install google-generativeai
 
--- 2. Set your Anthropic API Key (PowerShell):
-$env:ANTHROPIC_API_KEY="your-api-key-here"
+-- 2. Set your Gemini API Key (PowerShell):
+# Note: Get a free API Key from Google AI Studio: https://aistudio.google.com/
+$env:GEMINI_API_KEY="your-api-key-here"
 
 -- 3. Run the AI Agent script:
 # Note: First check your pod names with: kubectl get pods -n retail
